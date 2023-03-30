@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+        integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+        integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+    <title>Waterloo Live Map</title>
+</head>
+
+<body>
+    <h1>Waterloo Bus Live Map</h1>
+    <div id="map" style="width:1400px; height:800px"></div>
+
+    <style>
+        img.huechange_m1 {
+            filter: hue-rotate(0deg);
+        }
+    </style>
+    <style>
+        img.huechange_m2 {
+            filter: hue-rotate(140deg);
+        }
+    </style>
+    <style>
+        img.huechange_m3 {
+            filter: hue-rotate(300deg);
+        }
+    </style>
+    <script>
+        var map = L.map('map').setView([43.4728, -80.54249], 13);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            accessToken: 'pk.eyJ1IjoiZGFyYWtjaGVldjM2MCIsImEiOiJjbGZ1YzR0YWEwOWZxM2RucGt1eXJnem8wIn0.stQwqW_4VgvuR43mYkrC0Q'
+        }).addTo(map);
+
+        mapMarkers1 = [];
+        mapMarkers2 = [];
+        mapMarkers3 = [];
+
+        var source = new EventSource('/topic/geodata_final');
+        source.addEventListener('message', function (e) {
+            console.log('Message');
+            obj = JSON.parse(e.data);
+            console.log(obj);
+
+            if (obj.busline == '00001') {
+                // delete old markers to only show current markers
+                for (var i = 0; i < mapMarkers1.length; i++) {
+                    map.removeLayer(mapMarkers1[i]);
+                }
+
+                marker1 = L.marker([obj.latitude, obj.longitude]).addTo(map);
+                marker1._icon.classList.add("huechange_m1");
+                mapMarkers1.push(marker1);
+            }
+
+            if (obj.busline == '00002') {
+                // delete old markers to only show current markers
+                for (var i = 0; i < mapMarkers2.length; i++) {
+                    map.removeLayer(mapMarkers2[i]);
+                }
+
+                marker2 = L.marker([obj.latitude, obj.longitude]).addTo(map);
+                marker2._icon.classList.add("huechange_m2");
+                mapMarkers2.push(marker2);
+            }
+
+            if (obj.busline == '00003') {
+                // delete old markers to only show current markers
+                for (var i = 0; i < mapMarkers3.length; i++) {
+                    map.removeLayer(mapMarkers3[i]);
+                }
+
+                marker3 = L.marker([obj.latitude, obj.longitude]).addTo(map);
+                marker3._icon.classList.add("huechange_m3");
+                mapMarkers3.push(marker3);
+            }
+        }, false);
+
+    </script>
+</body>
+
+</html>
